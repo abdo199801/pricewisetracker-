@@ -1,0 +1,35 @@
+{
+  "name": "pricewise",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.2.9",
+    "axios": "^1.5.1",
+    "cheerio": "^1.0.0-rc.12",
+    "mongodb": "^7.0.0",
+    "mongoose": "^7.5.3",
+    "next": "^16.1.1",
+    "nodemailer": "^6.9.5",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-responsive-carousel": "^3.2.23",
+    "supports-color": "^8.1.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/node": "latest",
+    "@types/nodemailer": "^6.4.11",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.0",
+    "typescript": "latest"
+  }
+}

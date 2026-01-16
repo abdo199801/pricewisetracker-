@@ -12,6 +12,12 @@ const nextConfig = {
   },
   serverExternalPackages: ['mongoose'],
   reactStrictMode: true,
+  
+  // Add these optimizations
+  swcMinify: true, // Use SWC minifier (faster than Terser)
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production', // Remove console.log in production
+  },
 }
 
 module.exports = nextConfig

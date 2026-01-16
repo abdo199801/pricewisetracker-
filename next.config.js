@@ -23,8 +23,7 @@ const nextConfig = {
   // Enable React strict mode
   reactStrictMode: true,
 
-  // Optional: faster builds
-  swcMinify: true,
+ 
 }
 
 module.exports = nextConfig

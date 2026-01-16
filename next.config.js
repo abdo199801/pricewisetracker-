@@ -2,19 +2,11 @@
 const nextConfig = {
   experimental: {
     serverActions: true,
+    serverComponentsExternalPackages: ['mongoose']
   },
-
-  serverExternalPackages: ['mongoose'],
-
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'm.media-amazon.com',
-        pathname: '/images/**',
-      },
-    ],
-  },
+    domains: ['m.media-amazon.com']
+  }
 }
 
 module.exports = nextConfig

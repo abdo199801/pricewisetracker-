@@ -1,20 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    serverActions: true,
+    serverActions: true, // Keep if you use server actions
   },
-
-  serverExternalPackages: ['mongoose'],
-
+  serverExternalPackages: ['mongoose'], // replaces serverComponentsExternalPackages
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'm.media-amazon.com',
-        pathname: '/images/**',
+        port: '',
+        pathname: '/**',
       },
     ],
   },
+  reactStrictMode: true,
 }
 
 module.exports = nextConfig

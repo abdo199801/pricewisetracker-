@@ -1,9 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Enable experimental server actions (true is fine)
-  experimental: {
-    serverActions: true,
-  },
 
   // Move external packages out of experimental
   serverExternalPackages: ['mongoose'],

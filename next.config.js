@@ -1,9 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverActions: true, // Keep if you use server actions
-  },
-  serverExternalPackages: ['mongoose'], // replaces serverComponentsExternalPackages
   images: {
     remotePatterns: [
       {
@@ -14,6 +10,7 @@ const nextConfig = {
       },
     ],
   },
+  serverExternalPackages: ['mongoose'],
   reactStrictMode: true,
 }
 

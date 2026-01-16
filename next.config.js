@@ -1,9 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverActions: true,
-  },
-
+  // Remove the entire experimental section or keep it empty
+  // experimental: {
+  //   serverActions: true,  // <-- REMOVE THIS LINE
+  // },
+  
   serverExternalPackages: ['mongoose'],
 
   images: {

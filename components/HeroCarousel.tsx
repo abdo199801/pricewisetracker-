@@ -5,7 +5,7 @@ import { Carousel } from 'react-responsive-carousel'
 import "react-responsive-carousel/lib/styles/carousel.min.css"
 import Image from "next/image"
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Play, Pause, Zap, Shield, Truck, RefreshCw } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react'
 
 const heroImages = [
   { 
@@ -13,35 +13,35 @@ const heroImages = [
     alt: 'smartwatch',
     title: 'Smart Wearables',
     description: 'Track your fitness with advanced smartwatches',
-    badge: 'Best Seller'
+    accentColor: 'from-blue-600 to-cyan-500'
   },
   { 
     imgUrl: '/assets/images/hero-2.svg', 
     alt: 'bag',
     title: 'Premium Bags',
     description: 'Style meets functionality in every design',
-    badge: 'New Arrival'
+    accentColor: 'from-emerald-600 to-teal-500'
   },
   { 
     imgUrl: '/assets/images/hero-3.svg', 
     alt: 'lamp',
     title: 'Modern Lighting',
     description: 'Illuminate your space with smart lighting',
-    badge: 'Trending'
+    accentColor: 'from-amber-600 to-orange-500'
   },
   { 
     imgUrl: '/assets/images/hero-4.svg', 
     alt: 'air fryer',
     title: 'Smart Kitchen',
     description: 'Cook healthier with intelligent appliances',
-    badge: 'Sale'
+    accentColor: 'from-rose-600 to-pink-500'
   },
   { 
     imgUrl: '/assets/images/hero-5.svg', 
     alt: 'chair',
     title: 'Ergonomic Furniture',
     description: 'Work in comfort with ergonomic designs',
-    badge: 'Limited Time'
+    accentColor: 'from-violet-600 to-purple-500'
   },
 ]
 
@@ -49,12 +49,24 @@ const HeroCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const [isHovering, setIsHovering] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     if (isAutoPlaying && !isHovering) {
       const interval = setInterval(() => {
         setCurrentSlide((prev) => (prev + 1) % heroImages.length)
-      }, 4000)
+      }, 5000)
       return () => clearInterval(interval)
     }
   }, [isAutoPlaying, isHovering])
@@ -75,69 +87,23 @@ const HeroCarousel = () => {
     setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length)
   }
 
-  return (
-    <div 
-      className="relative group"
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
-    >
-      {/* Stats Bar */}
-      <div className="absolute top-0 left-0 right-0 z-20">
-        <div className="max-w-7xl mx-auto px-4">
-          <motion.div 
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="flex items-center justify-center gap-8 py-3"
-          >
-            {[
-              { icon: Zap, text: 'Lightning Fast Delivery', subtext: 'Within 24 hours' },
-              { icon: Shield, text: 'Secure Payment', subtext: '100% Safe' },
-              { icon: Truck, text: 'Free Shipping', subtext: 'Over $50' },
-              { icon: RefreshCw, text: 'Easy Returns', subtext: '30 Days Policy' },
-            ].map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1 }}
-                className="flex items-center gap-3 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg"
-              >
-                <div className="p-2 bg-gradient-to-r from-primary to-primary-light rounded-lg">
-                  <stat.icon className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">{stat.text}</p>
-                  <p className="text-xs text-gray-600">{stat.subtext}</p>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </div>
+  const currentImage = heroImages[currentSlide]
 
+  return (
+    <div className="relative">
       {/* Carousel Container */}
-      <div className="relative overflow-hidden rounded-3xl shadow-2xl">
-        {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50" />
+      <div 
+        className="relative overflow-hidden rounded-lg lg:rounded-xl xl:rounded-2xl shadow-lg"
+        onMouseEnter={() => !isMobile && setIsHovering(true)}
+        onMouseLeave={() => !isMobile && setIsHovering(false)}
+      >
+        {/* Subtle Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100" />
         
-        {/* Animated Border */}
-        <motion.div
-          className="absolute inset-0 rounded-3xl p-[2px]"
-          style={{
-            background: 'linear-gradient(45deg, #3B82F6, #8B5CF6, #EC4899)'
-          }}
-          animate={{
-            background: [
-              'linear-gradient(45deg, #3B82F6, #8B5CF6, #EC4899)',
-              'linear-gradient(45deg, #EC4899, #3B82F6, #8B5CF6)',
-              'linear-gradient(45deg, #8B5CF6, #EC4899, #3B82F6)',
-            ]
-          }}
-          transition={{ duration: 5, repeat: Infinity, repeatType: "reverse" }}
-        />
+        {/* Accent Border */}
+        <div className={`absolute inset-0 rounded-lg lg:rounded-xl xl:rounded-2xl border ${currentImage.accentColor.split(' ')[0].replace('from-', 'border-')}/10`} />
         
-        <div className="relative p-8">
+        <div className="relative p-4 sm:p-6 lg:p-8 xl:p-10">
           <Carousel
             showThumbs={false}
             showArrows={false}
@@ -145,210 +111,162 @@ const HeroCarousel = () => {
             selectedItem={currentSlide}
             onChange={handleSlideChange}
             infiniteLoop
-            className="relative z-10"
+            className="relative"
+            swipeable={true}
+            emulateTouch={true}
+            autoPlay={isAutoPlaying}
+            interval={5000}
+            stopOnHover={false}
           >
             {heroImages.map((image, index) => (
               <div key={image.alt} className="relative">
-                <div className="grid md:grid-cols-2 gap-8 items-center min-h-[500px]">
+                <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center min-h-[280px] sm:min-h-[350px] lg:min-h-[450px]">
                   {/* Content */}
                   <motion.div
-                    initial={{ opacity: 0, x: -50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="space-y-6"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, ease: "easeOut" }}
+                    className="space-y-4 sm:space-y-6 order-2 lg:order-1 text-center lg:text-left"
                   >
-                    <div>
-                      <motion.span
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
+                    <div className="space-y-3 sm:space-y-4">
+                      <motion.h1
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="inline-block px-4 py-1 bg-gradient-to-r from-primary to-primary-light text-white text-sm font-semibold rounded-full"
+                        className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 leading-tight tracking-tight"
                       >
-                        {image.badge}
-                      </motion.span>
+                        Discover{' '}
+                        <span className={`block lg:inline bg-gradient-to-r ${image.accentColor} bg-clip-text text-transparent`}>
+                          {image.title}
+                        </span>
+                      </motion.h1>
+                      
+                      <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-xl mx-auto lg:mx-0"
+                      >
+                        {image.description}
+                      </motion.p>
                     </div>
                     
-                    <motion.h1
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                      className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight"
-                    >
-                      Discover <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                        {image.title}
-                      </span>
-                    </motion.h1>
-                    
-                    <motion.p
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
+                    {/* Minimal Indicator */}
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
                       transition={{ delay: 0.4 }}
-                      className="text-xl text-gray-600"
+                      className="flex items-center justify-center lg:justify-start gap-2 pt-2"
                     >
-                      {image.description}
-                    </motion.p>
+                      <div className="text-xs font-medium text-gray-500">
+                        Slide {index + 1} of {heroImages.length}
+                      </div>
+                    </motion.div>
                   </motion.div>
                   
-                  {/* Image */}
+                  {/* Image Container */}
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.6 }}
-                    className="relative"
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    className="relative order-1 lg:order-2"
                   >
-                    <div className="absolute -inset-4 bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-3xl blur-xl" />
-                    <Image
-                      src={image.imgUrl}
-                      alt={image.alt}
-                      width={600}
-                      height={600}
-                      className="relative object-contain drop-shadow-2xl"
-                      priority={index === 0}
-                    />
+                    {/* Floating Background Effect */}
+                    <div className={`absolute -inset-4 sm:-inset-6 bg-gradient-to-r ${image.accentColor} opacity-5 rounded-2xl blur-xl`} />
                     
-                    {/* Floating Elements */}
-                    <AnimatePresence>
-                      {currentSlide === index && (
-                        <>
-                          <motion.div
-                            initial={{ scale: 0, rotate: -180 }}
-                            animate={{ scale: 1, rotate: 0 }}
-                            transition={{ delay: 0.7 }}
-                            className="absolute -top-4 -right-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-lg shadow-lg"
-                          >
-                            <span className="font-bold">-30%</span>
-                          </motion.div>
-                          <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: 0.8 }}
-                            className="absolute -bottom-4 -left-4 bg-white px-4 py-2 rounded-lg shadow-lg border"
-                          >
-                            <span className="text-sm font-semibold text-gray-900">🔥 Trending</span>
-                          </motion.div>
-                        </>
-                      )}
-                    </AnimatePresence>
+                    {/* Main Image */}
+                    <div className="relative">
+                      <Image
+                        src={image.imgUrl}
+                        alt={image.alt}
+                        width={isMobile ? 280 : 500}
+                        height={isMobile ? 280 : 500}
+                        className="relative w-full max-w-[240px] sm:max-w-[320px] lg:max-w-[400px] xl:max-w-[500px] mx-auto object-contain filter drop-shadow-xl"
+                        priority={index === 0}
+                      />
+                    </div>
                   </motion.div>
                 </div>
               </div>
             ))}
           </Carousel>
 
-          {/* Custom Controls */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-            <div className="flex items-center gap-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
+          {/* Minimal Navigation Controls */}
+          <div className="absolute bottom-4 sm:bottom-6 lg:bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+            <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-gray-100">
               {/* Auto Play Toggle */}
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+              <button
                 onClick={toggleAutoPlay}
-                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                className={`p-1.5 rounded-full transition-colors ${
+                  isAutoPlaying ? 'bg-gray-100 text-gray-700' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                }`}
+                aria-label={isAutoPlaying ? "Pause slideshow" : "Play slideshow"}
               >
                 {isAutoPlaying ? (
-                  <Pause className="w-4 h-4 text-gray-700" />
+                  <Pause className="w-3.5 h-3.5" />
                 ) : (
-                  <Play className="w-4 h-4 text-gray-700" />
+                  <Play className="w-3.5 h-3.5" />
                 )}
-              </motion.button>
+              </button>
 
               {/* Navigation Dots */}
-              <div className="flex gap-2">
+              <div className="flex gap-1.5">
                 {heroImages.map((_, index) => (
-                  <motion.button
+                  <button
                     key={index}
                     onClick={() => setCurrentSlide(index)}
-                    className={`relative w-2 h-2 rounded-full transition-all ${
+                    className={`w-1.5 h-1.5 rounded-full transition-all ${
                       currentSlide === index 
-                        ? 'bg-gradient-to-r from-primary to-primary-light w-8' 
+                        ? `${currentImage.accentColor.split(' ')[0].replace('from-', 'bg-')} w-4`
                         : 'bg-gray-300 hover:bg-gray-400'
                     }`}
-                    whileHover={{ scale: 1.2 }}
-                    whileTap={{ scale: 0.8 }}
-                  >
-                    {currentSlide === index && (
-                      <motion.div
-                        layoutId="activeDot"
-                        className="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-primary-light"
-                      />
-                    )}
-                  </motion.button>
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
                 ))}
               </div>
 
               {/* Slide Counter */}
-              <div className="text-sm font-medium text-gray-700">
-                {currentSlide + 1} / {heroImages.length}
+              <div className="text-xs font-medium text-gray-600">
+                {currentSlide + 1}/{heroImages.length}
               </div>
             </div>
           </div>
 
-          {/* Navigation Arrows */}
+          {/* Navigation Arrows - Only show on hover for desktop */}
           <AnimatePresence>
-            {isHovering && (
+            {(isMobile || isHovering) && (
               <>
-                <motion.button
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+                <button
                   onClick={prevSlide}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-shadow"
+                  className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 z-10 p-2 sm:p-3 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+                  aria-label="Previous slide"
                 >
-                  <ChevronLeft className="w-6 h-6 text-gray-700" />
-                </motion.button>
-                <motion.button
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+                  <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                </button>
+                <button
                   onClick={nextSlide}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-shadow"
+                  className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 z-10 p-2 sm:p-3 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+                  aria-label="Next slide"
                 >
-                  <ChevronRight className="w-6 h-6 text-gray-700" />
-                </motion.button>
+                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                </button>
               </>
             )}
           </AnimatePresence>
         </div>
-      </div>
 
-      {/* Hand Drawn Arrow */}
-      <motion.div
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 1 }}
-        className="absolute -left-20 bottom-10 z-10 hidden lg:block"
-      >
-        <Image 
-          src="/assets/icons/hand-drawn-arrow.svg"
-          alt="arrow"
-          width={200}
-          height={200}
-          className="object-contain"
-        />
-        <motion.div
-          animate={{ y: [0, -10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="absolute top-4 left-4 text-sm font-semibold text-primary"
-        >
-          put your product link 
-        </motion.div>
-      </motion.div>
-
-      {/* Progress Bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200 overflow-hidden rounded-b-3xl">
-        <motion.div
-          animate={{ width: isAutoPlaying ? '100%' : '0%' }}
-          transition={{ 
-            duration: 4, 
-            repeat: isAutoPlaying ? Infinity : 0,
-            ease: "linear" 
-          }}
-          className="h-full bg-gradient-to-r from-primary to-primary-light"
-        />
+        {/* Progress Indicator */}
+        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-100 overflow-hidden">
+          <motion.div
+            animate={{ width: isAutoPlaying ? '100%' : '0%' }}
+            transition={{ 
+              duration: 5, 
+              repeat: isAutoPlaying ? Infinity : 0,
+              ease: "linear" 
+            }}
+            className={`h-full ${currentImage.accentColor.replace('from-', 'bg-gradient-to-r ')}`}
+          />
+        </div>
       </div>
     </div>
   )

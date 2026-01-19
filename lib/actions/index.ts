@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import Product from "../models/product.model";
 import { connectToDB } from "../mongoose";
-import { scrapeAmazonProduct, scrapeEbayProduct, detectPlatform } from "../scraper"; // Updated import
+import { scrapeAmazonProduct } from "../scraper";
 import { getAveragePrice, getHighestPrice, getLowestPrice } from "../utils";
 import { User } from "@/types";
 import { generateEmailBody, sendEmail } from "../nodemailer";
@@ -19,11 +19,9 @@ export async function scrapeAndStoreProduct(productUrl: string) {
   try {
     console.log(`🔄 Attempting to scrape: ${productUrl}`);
     
-    // Validate URL and detect platform
-    const platform = detectPlatform(productUrl);
-    
-    if (await platform === 'unsupported') {
-      throw new Error("Unsupported platform. Currently supported: Amazon, eBay");
+    // Validate URL format
+    if (!productUrl.includes('amazon.')) {
+      throw new Error("Invalid Amazon URL format");
     }
     
     // Connect to database first
@@ -39,13 +37,7 @@ export async function scrapeAndStoreProduct(productUrl: string) {
     
     while (retryCount < maxRetries) {
       try {
-        // Use the appropriate scraper based on platform
-        if (await platform === 'amazon') {
-          scrapedProduct = await scrapeAmazonProduct(productUrl);
-        } else if (await platform === 'ebay') {
-          scrapedProduct = await scrapeEbayProduct(productUrl);
-        }
-        
+        scrapedProduct = await scrapeAmazonProduct(productUrl);
         if (scrapedProduct) break;
       } catch (scrapeError: any) {
         retryCount++;
@@ -66,29 +58,23 @@ export async function scrapeAndStoreProduct(productUrl: string) {
       throw new Error("Failed to scrape product information");
     }
     
-    // Add platform to scraped product data
-    const enrichedProduct = {
-      ...scrapedProduct,
-      platform
-    };
-    
-    console.log(`✅ Successfully scraped ${(await platform).toUpperCase()} product: ${enrichedProduct.title}`);
+    console.log(`✅ Successfully scraped: ${scrapedProduct.title}`);
 
-    let product = enrichedProduct;
+    let product = scrapedProduct;
 
-    const existingProduct = await Product.findOne({ url: enrichedProduct.url });
+    const existingProduct = await Product.findOne({ url: scrapedProduct.url });
 
     if(existingProduct) {
       const updatedPriceHistory: any = [
         ...existingProduct.priceHistory,
         { 
-          price: enrichedProduct.currentPrice,
+          price: scrapedProduct.currentPrice,
           date: new Date()
         }
       ]
 
       product = {
-        ...enrichedProduct,
+        ...scrapedProduct,
         priceHistory: updatedPriceHistory,
         lowestPrice: getLowestPrice(updatedPriceHistory),
         highestPrice: getHighestPrice(updatedPriceHistory),
@@ -99,19 +85,18 @@ export async function scrapeAndStoreProduct(productUrl: string) {
     }
 
     const newProduct = await Product.findOneAndUpdate(
-      { url: enrichedProduct.url },
+      { url: scrapedProduct.url },
       product,
       { upsert: true, new: true }
     );
 
-    console.log(`💾 ${(await platform).toUpperCase()} product saved to database: ${newProduct._id}`);
+    console.log(`💾 Product saved to database: ${newProduct._id}`);
     revalidatePath(`/products/${newProduct._id}`);
     
     return {
       success: true,
       productId: newProduct._id,
-      platform,
-      message: `${(await platform).charAt(0).toUpperCase() + (await platform).slice(1)} product scraped and stored successfully`
+      message: "Product scraped and stored successfully"
     };
     
   } catch (error: any) {
@@ -165,8 +150,6 @@ export async function getSimilarProducts(productId: string) {
 
     const similarProducts = await Product.find({
       _id: { $ne: productId },
-      category: currentProduct.category, // Match by category for better similarity
-      platform: currentProduct.platform, // Also match by platform
     }).limit(3);
 
     return similarProducts;
@@ -206,83 +189,5 @@ export async function addUserEmailToProduct(productId: string, userEmail: string
   } catch (error: any) {
     console.log(error);
     return { success: false, message: error.message };
-  }
-}
-
-// New function to get products by platform
-export async function getProductsByPlatform(platform: 'amazon' | 'ebay') {
-  try {
-    await connectToDB();
-
-    const products = await Product.find({ platform });
-
-    return products;
-  } catch (error) {
-    console.log(error);
-    return [];
-  }
-}
-
-// New function to get all platforms with product counts
-export async function getPlatformStats() {
-  try {
-    await connectToDB();
-
-    const stats = await Product.aggregate([
-      {
-        $group: {
-          _id: "$platform",
-          count: { $sum: 1 },
-          totalTrackedUsers: { $sum: { $size: "$users" } }
-        }
-      },
-      {
-        $project: {
-          platform: "$_id",
-          count: 1,
-          totalTrackedUsers: 1,
-          _id: 0
-        }
-      }
-    ]);
-
-    return stats;
-  } catch (error) {
-    console.log(error);
-    return [];
-  }
-}
-
-// Optional: Function to batch scrape multiple products
-export async function batchScrapeProducts(productUrls: string[]) {
-  try {
-    const results = [];
-    
-    for (const url of productUrls) {
-      try {
-        const result = await scrapeAndStoreProduct(url);
-        results.push({
-          url,
-          success: result.success,
-          productId: result.productId,
-          message: result.message
-        });
-        
-        // Add delay between requests to avoid rate limiting
-        await delay(1000);
-      } catch (error: any) {
-        results.push({
-          url,
-          success: false,
-          error: error.message,
-          message: `Failed to scrape: ${error.message}`
-        });
-      }
-    }
-    
-    return results;
-  } catch (error: any) {
-    console.error(`❌ Error in batchScrapeProducts: ${error.message}`);
-    return [];
   }
 }

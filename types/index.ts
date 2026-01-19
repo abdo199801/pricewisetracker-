@@ -39,6 +39,12 @@ export type EmailContent = {
 };
 
 export type EmailProductInfo = {
+  currency: string;
+  platform: string;
+  image: any;
+  currentPrice: any;
+  originalPrice: any;
+  discountRate: number;
   title: string;
   url: string;
 };

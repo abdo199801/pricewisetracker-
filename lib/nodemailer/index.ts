@@ -10,8 +10,9 @@ const Notification = {
   THRESHOLD_MET: 'THRESHOLD_MET',
 }
 
+// Update the function to accept only what it needs
 export async function generateEmailBody(
-  product: EmailProductInfo,
+  product: Pick<EmailProductInfo, 'title' | 'url'>,
   type: NotificationType
   ) {
   const THRESHOLD_PERCENTAGE = 40;
@@ -103,5 +104,5 @@ export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) =>
     if(error) return console.log(error);
     
     console.log('Email sent: ', info);
-  })
+  })  
 }
